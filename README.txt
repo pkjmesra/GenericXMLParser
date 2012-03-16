@@ -1,0 +1,1 @@
+An absolutely generic XML parser in Obj-C that parses any xml string and creates runtime objects from the parsed xml. The runtime objects may not be pre-existing.
