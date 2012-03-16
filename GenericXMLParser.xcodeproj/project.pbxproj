@@ -42,7 +42,7 @@
 		840C073215131C4400AAC4F7 /* DDXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 840C071E15131C4400AAC4F7 /* DDXMLNode.m */; };
 		840C073315131C4400AAC4F7 /* NSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 840C072115131C4400AAC4F7 /* NSStringAdditions.m */; };
 		840C073415131C4400AAC4F7 /* libidn-1.15.tar.gz in Resources */ = {isa = PBXBuildFile; fileRef = 840C072615131C4400AAC4F7 /* libidn-1.15.tar.gz */; };
-		8451AEDF15131EDF00B3373C /* VMGGetCurrentSettingsRequest.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8451AEDE15131EDF00B3373C /* VMGGetCurrentSettingsRequest.xml */; };
+		8451AEDF15131EDF00B3373C /* SomeSample.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8451AEDE15131EDF00B3373C /* SomeSample.xml */; };
 		8451AEE71513229100B3373C /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8451AEE61513229100B3373C /* libxml2.dylib */; };
 		8451AEE8151322A600B3373C /* libidn.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 840C072715131C4400AAC4F7 /* libidn.a */; };
 /* End PBXBuildFile section */
@@ -119,7 +119,7 @@
 		840C072615131C4400AAC4F7 /* libidn-1.15.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = "libidn-1.15.tar.gz"; sourceTree = "<group>"; };
 		840C072715131C4400AAC4F7 /* libidn.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libidn.a; sourceTree = "<group>"; };
 		840C072815131C4400AAC4F7 /* stringprep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringprep.h; sourceTree = "<group>"; };
-		8451AEDE15131EDF00B3373C /* VMGGetCurrentSettingsRequest.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = VMGGetCurrentSettingsRequest.xml; sourceTree = "<group>"; };
+		8451AEDE15131EDF00B3373C /* SomeSample.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = SomeSample.xml; sourceTree = "<group>"; };
 		8451AEE61513229100B3373C /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		8D1107310486CEB800E47090 /* GenericXMLParser-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GenericXMLParser-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -344,7 +344,7 @@
 		8451AEDD15131EDF00B3373C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				8451AEDE15131EDF00B3373C /* VMGGetCurrentSettingsRequest.xml */,
+				8451AEDE15131EDF00B3373C /* SomeSample.xml */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -398,7 +398,7 @@
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				2899E5220DE3E06400AC0155 /* GenericXMLParserViewController.xib in Resources */,
 				840C073415131C4400AAC4F7 /* libidn-1.15.tar.gz in Resources */,
-				8451AEDF15131EDF00B3373C /* VMGGetCurrentSettingsRequest.xml in Resources */,
+				8451AEDF15131EDF00B3373C /* SomeSample.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -52,13 +52,17 @@ NSString *MyObjectWillDeallocateNotification = @"MyObjectWillDeallocateNotificat
 static NSMutableDictionary *gSubclassesDict;
 static NSMutableSet *gSubclasses;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark runtime static methods
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static RTUnregisteredClass* unregisteredClassFromClassName(NSString * className)
 {
     Class xmlMesssage = NSClassFromString(@"GenericXMLMessage");
     if(!xmlMesssage)
         return nil;
     
-    RTUnregisteredClass *unregClass = [xmlMesssage rt_createUnregisteredSubclassNamed: className];
+    RTUnregisteredClass *unregClass = [xmlMesssage rt_createUnregisteredSubclassNamed:className];
     
     return unregClass;
 }
@@ -69,38 +73,6 @@ static void Override(Class c, SEL sel, void *fptr)
     RTMethod *superMethod = [[c superclass] rt_methodForSelector: sel]; //NSClassFromString(@"GenericXMLMessage")
     RTMethod *newMethod = [RTMethod methodWithSelector: sel implementation: fptr signature: [superMethod signature]];
     [c rt_addMethod: newMethod];
-}
-
-//! Creates a mew receipt message with element "received"
-static GenericXMLMessage* GenerateReceiptResponse (id self, SEL _cmd)
-{
-    // Override and create a serialized string
-    return nil;
-}
-
-static NSXMLElement* Serialize (id self, SEL _cmd)
-{
-    // Example:
-	// 
-	// <message to="juliet">
-	//   <received xmlns="urn:GenericXML:receipts" id="ABC-123"/>
-	// </message>
-	
-    // RootNode and other serialization code goes here
-    NSXMLElement *message = [NSXMLElement elementWithName:NSStringFromClass([self class])];
-    
-    // add all attributes to the node
-    NSMutableDictionary *attributesDict = [self attributesAsDictionary];
-    NSArray *keys = [attributesDict allKeys];
-    for (NSString* key in keys) 
-    {
-        [message addAttributeWithName:key stringValue:[attributesDict objectForKey:key]];
-    }
-	NSXMLElement *received = [NSXMLElement elementWithName:@"received"];
-	
-	[message addChild:received];
-	
-	return message;
 }
 
 static NSString* parseClassNameFromXMLElement(NSString* xmlElement)
@@ -130,27 +102,8 @@ static NSString* parseClassNameFromXMLElement(NSString* xmlElement)
 
 static NSString *Description(id self, SEL _cmd)
 {
-    return [NSString stringWithFormat: @"<%@ %p: iVarCount=%d>", [self class], self,[[[self class] rt_ivars] count]];
-}
-
-static void DeSerialize(id self, SEL _cmd, NSXMLElement* xmlData, objCRuntimeClassGenerator* rtGenerator, NSString *propertyPath)
-{
-    DDLogVerbose(@"deserializing:%@",[xmlData compactXMLString]);
-    // Create root class
-    RTUnregisteredClass *unreg = [rtGenerator createRootClass:xmlData];
-    
-    //for (NSXMLElement *child in [xmlData children]) 
-    {
-        [rtGenerator createRuntimeChildObjectPool:[xmlData children]
-                                      forNewClass:unreg
-                                        forParent:self
-                                             root:xmlData
-                                             path:propertyPath];
-    }
-//    GenericXMLStream *stream = [[GenericXMLStream alloc] init];
-//    NSData * data = [[xmlData compactXMLString] dataUsingEncoding:NSUTF8StringEncoding];
-//    stream.parentElement = self;
-//    [stream parseUTF8XMLData:data];
+//    return [NSString stringWithFormat: @"<%@ %p: iVarCount=%d iVars:%@ >", [self class], self,[[[self class] rt_ivars] count],[[self class] rt_ivars]];
+	return [NSString stringWithFormat: @"<%@ %p: iVarCount=%d >", [self class], self,[[[self class] rt_ivars] count]];
 }
 
 static void Dealloc(id self, SEL _cmd)
@@ -171,7 +124,7 @@ static void Dealloc(id self, SEL _cmd)
 //        object_getInstanceVariable(self, [instanceObj name], &currentValue);
 //        [currentValue release];
 //    }
-    void (*superIMP)(id, SEL) = [c instanceMethodForSelector: @selector(dealloc)];
+    id (*superIMP)(id, SEL,...) = [c instanceMethodForSelector:@selector(dealloc)];
     superIMP(self, _cmd);
 
 }
@@ -215,18 +168,98 @@ void MakeObjectPostDeallocNotification(id obj)
     [obj rt_setClass: c];
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark overridden super class methods
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//! Creates a mew receipt message with element "received"
+static GenericXMLMessage* GenerateReceiptResponse (id self, SEL _cmd)
+{
+    // Override and create a serialized string
+    return nil;
+}
+
+static NSXMLElement* Serialize (id self, SEL _cmd)
+{
+    // Example:
+	// 
+	// <message to="juliet">
+	//   <received xmlns="urn:GenericXML:receipts" id="ABC-123"/>
+	// </message>
+	
+    // RootNode and other serialization code goes here
+    NSXMLElement *message = [NSXMLElement elementWithName:NSStringFromClass([self class])];
+    
+    // add all attributes to the node
+    NSMutableDictionary *attributesDict = [self attributesAsDictionary];
+    NSArray *keys = [attributesDict allKeys];
+    for (NSString* key in keys) 
+    {
+        [message addAttributeWithName:key stringValue:[attributesDict objectForKey:key]];
+    }
+	NSXMLElement *received = [NSXMLElement elementWithName:@"received"];
+	
+	[message addChild:received];
+	
+	return message;
+}
+
+static void DeSerialize(id self, SEL _cmd, NSXMLElement* xmlData, objCRuntimeClassGenerator* rtGenerator, NSString *propertyPath,NSString* childClassName)
+{
+    DDLogVerbose(@"deserializing:%@",[xmlData compactXMLString]);
+    // Create root class
+    RTUnregisteredClass *unreg = [rtGenerator createRootClass:xmlData Named:childClassName];
+    
+    //for (NSXMLElement *child in [xmlData children]) 
+    {
+        [rtGenerator createRuntimeChildObjectPool:[xmlData children]
+                                      forNewClass:unreg
+                                        forParent:self
+                                             root:xmlData
+                                             path:propertyPath 
+								   childClassName:childClassName];
+    }
+	//    GenericXMLStream *stream = [[GenericXMLStream alloc] init];
+	//    NSData * data = [[xmlData compactXMLString] dataUsingEncoding:NSUTF8StringEncoding];
+	//    stream.parentElement = self;
+	//    [stream parseUTF8XMLData:data];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark public objCRuntimeClassGenerator methods
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 -(GenericXMLMessage*)createRuntimeObjectPool:(NSMutableArray *)parsedElements 
 {
     // Create root class
     NSXMLElement *rootElement = [parsedElements objectAtIndex:0];
-    RTUnregisteredClass *unreg = [self createRootClass:rootElement];
+    RTUnregisteredClass *unreg = [self createRootClass:rootElement Named:@""];
     
     // create children classes' iVar in root class
+	NSMutableDictionary *ivars = [[NSMutableDictionary alloc] initWithCapacity:0];
     for (int position=1;position <[parsedElements count];position++) 
     {
-        NSString *newiVar = parseClassNameFromXMLElement([[parsedElements objectAtIndex:position] compactXMLString]);
-        [self addiVar:newiVar toUnregisteredClass:unreg];
+        NSXMLElement *child = [parsedElements objectAtIndex:position];
+        if ([[child description] hasPrefix:@"<"])
+        {
+            NSString *newiVar = parseClassNameFromXMLElement([[parsedElements objectAtIndex:position] compactXMLString]);
+			newiVar =[self getNextAvailableIvar:newiVar inDictionary:ivars Index:0];
+			[ivars setObject:child forKey:newiVar];
+        }
     }
+
+    for (int position=0;position <[ivars count];position++) 
+    {
+        [self addiVar:[[ivars allKeys] objectAtIndex:position] toUnregisteredClass:unreg];
+    }
+
+	if ([ivars count]==0)
+	{
+		// Always add the innerValue iVar to all classes
+		// <accountId>inner value will be here</accountId>
+		[self addiVar:INNER_VALUE_IVAR_KEY toUnregisteredClass:unreg];
+	}
+	
     // Now register the class so we can use it
     id rootClass = [self registerUnregisteredClass:unreg];
     // Now create an instance of the class
@@ -240,39 +273,57 @@ void MakeObjectPostDeallocNotification(id obj)
     
     self.rootInstance = instance;
     // Now set the child element iVar values since the iVars are already created
-    for (int position=1;position <[parsedElements count];position++) 
+    for (int position=0;position <[ivars count];position++) 
     {
-        if ([instance respondsToSelector:@selector(deSerialize:runtimeGenerator:path:)])
+        if ([instance respondsToSelector:@selector(deSerialize:runtimeGenerator:path:childClassName:)])
         {
-            [instance deSerialize:[parsedElements objectAtIndex:position] runtimeGenerator:self path:NSStringFromClass(rootClass)];
+			NSString *name = [[ivars allKeys] objectAtIndex:position];
+            [instance deSerialize:[ivars objectForKey:name] runtimeGenerator:self path:NSStringFromClass(rootClass) childClassName:name];
         }
     }
-    
-//    if (instance)
-//    {
-//        // Set the values to existing iVars
-//        NSString * iVarKey = parseClassNameFromXMLElement([rootElement compactXMLString]);
-////        selectorHelper *helper = [[selectorHelper alloc] init];
-////        SEL selector = [helper selectorFromTag:iVarKey];
-////        if ([parent respondsToSelector:selector])
-//        {
-//            [self setiVarValue:instance foriVar:iVarKey inRegisteredClassInstance:parent];
-//        }
-////        [helper release];
-//    }
-//    NSArray *ivars = [[instance class] rt_ivars];
-//    DDLogInfo(@"contains ivar:%d",[[ivars valueForKey: @"name"] containsObject: @"MessageBody"]);
-//    
-//    RTIvar *ivar = [[instance class] rt_ivarForName: @"MessageBody"];
-//    DDLogInfo(@"%@",[ivar class]);
-//    
-//    DDLogInfo(@"value:%@ for iVar:%@",objc_getAssociatedObject(instance,ivar),ivar);
-//    selectorHelper *helper = [[selectorHelper alloc] init];
-//    SEL selector = [helper selectorFromTag:@"MessageBody"];
-//    SEL bodySelector = [helper selectorFromTag:@"bodyId"];
-//    DDLogInfo(@"%@",[[instance performSelector:selector] performSelector:bodySelector]);
-//    [helper release];
+	
+	NSString *rootNodeKeyName = [NSString stringWithFormat:@"%@.%@.parentInstance",NSStringFromClass(rootClass),[[ivars allKeys] objectAtIndex:0]];
+    [ivars release];
+	
+	DDLogVerbose(@"rootNodeKeyName for object graph is:%@",rootNodeKeyName);
+	[multicastDelegate generator:self didFinishWithRoot:[self getObjectForFullyQualifiedKey:rootNodeKeyName] RootKeyInObjectGraph:rootNodeKeyName];
+	
     return self.rootInstance;
+}
+
+-(id)fetchValueObjectForiVar:(NSString *)key 
+         inContainerInstance:(id)instanceOfClass
+{
+    NSArray *ivars = [[instanceOfClass class] rt_ivars];
+    BOOL containsiVar = [[ivars valueForKey: @"name"] containsObject:key];
+    DDLogVerbose(@"%@ class instance contains ivar %@:%d",
+                 NSStringFromClass([instanceOfClass class]),key,
+                 containsiVar);
+    if (!containsiVar)
+        return nil;
+    // We found the iVar in the class declaration.
+    // Now let's try finding the value for iVar
+    id iVarValue = objc_getAssociatedObject(instanceOfClass,key);
+    if ([iVarValue isKindOfClass:[GenericXMLMessage class]])
+    {
+		//        id typecasted;
+		//        object_getInstanceVariable(instanceOfNewClass, key, (void*)&typecasted);
+        DDLogVerbose(@"Retrieved value:%@ for iVar:%@",NSStringFromClass([iVarValue class]),key);//NSStringFromClass([setvalue class])
+    }
+    else
+        DDLogVerbose(@"Retrieved value:%@ for iVar:%@",iVarValue,key);
+	
+    if (!iVarValue)
+    {
+        Ivar ivar = class_getInstanceVariable([instanceOfClass class],"MessageHeader");
+        //const char* typeEncoding = ivar_getTypeEncoding(ivar);
+        id returnedValue = object_getIvar(instanceOfClass, ivar);
+        iVarValue = returnedValue;
+    }
+    
+    [multicastDelegate generator:self didRetrieveValue:iVarValue foriVar:key inClass:instanceOfClass];
+    
+    return iVarValue;
 }
 
 -(NSDictionary *)getObjectGraph
@@ -285,29 +336,72 @@ void MakeObjectPostDeallocNotification(id obj)
     return [self.allObjectsGraph objectForKey:fqKey];
 }
 
-#pragma private methods for objCRuntimeClassGenerator
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark objCRuntimeClassGeneratorDelegate Configuration
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+- (void)addDelegate:(id)delegate
+{
+	[multicastDelegate addDelegate:delegate];
+}
+
+- (void)removeDelegate:(id)delegate
+{
+	[multicastDelegate removeDelegate:delegate];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark private methods for objCRuntimeClassGenerator
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 -(void)createRuntimeChildObjectPool:(NSArray *)parsedElements 
                      forNewClass:(RTUnregisteredClass*) unreg
                           forParent:(GenericXMLMessage *)parent
                                root:(NSXMLElement*)rootElement
-                               path:propertyPath
+                               path:propertyPath 
+					 childClassName:(NSString*)childClassName
 {
     DDLogVerbose(@"parsedElements from which children will be created:%@",parsedElements);
     // create children classes' iVar in root class
+	NSMutableDictionary *ivars = [[NSMutableDictionary alloc] initWithCapacity:0];
     for (int position=0;position <[parsedElements count];position++) 
     {
         NSXMLElement *child = [parsedElements objectAtIndex:position];
         if ([[child description] hasPrefix:@"<"])
         {
             NSString *newiVar = parseClassNameFromXMLElement([child name]);
-            [self addiVar:newiVar toUnregisteredClass:unreg];
+			newiVar =[self getNextAvailableIvar:newiVar inDictionary:ivars Index:0];
+			[ivars setObject:child forKey:newiVar];
         }
     }
-    // Now register the class so we can use it
-    id rootClass = [self registerUnregisteredClass:unreg];
+	
+	for (int position=0;position <[ivars count];position++) 
+    {
+		[self addiVar:[[ivars allKeys] objectAtIndex:position] toUnregisteredClass:unreg];
+    }
+	if ([ivars count]==0)
+	{
+		// Always add the innerValue iVar to all classes
+		// <accountId>inner value will be here</accountId>
+		[self addiVar:INNER_VALUE_IVAR_KEY toUnregisteredClass:unreg];
+	}
+	
+	id rootClass;
+	if (unreg)
+	{
+		[self addiVar:@"parentInstance" toUnregisteredClass:unreg];
+		
+		// Now register the class so we can use it
+		 rootClass= [self registerUnregisteredClass:unreg];
+	}
+	else
+	{
+		// Do we already have a registered class by that name?
+		rootClass = NSClassFromString(childClassName);
+	}
     // Now create an instance of the class
     GenericXMLMessage* instance = [[rootClass alloc] init];
-    NSString* propertyPathNew = [NSString stringWithFormat:@"%@.%@",propertyPath,NSStringFromClass(rootClass)];
+    NSString* propertyPathNew = [NSString stringWithFormat:@"%@.%@",propertyPath,NSStringFromClass([instance class])];
     
     //Set root element attributes' values
     [self setAttributediVars:[rootElement attributesAsDictionary] forClass:instance path:propertyPathNew];
@@ -318,33 +412,26 @@ void MakeObjectPostDeallocNotification(id obj)
             inRegisteredClassInstance:instance path:propertyPathNew];
     
     // Now set the child element iVar values since the iVars are already created
-    for (int position=0;position <[parsedElements count];position++) 
+    for (int position=0;position <[ivars count];position++) 
     {
-        if ([instance respondsToSelector:@selector(deSerialize:runtimeGenerator:path:)])
+        if ([instance respondsToSelector:@selector(deSerialize:runtimeGenerator:path:childClassName:)])
         {
-            NSXMLElement *child = [parsedElements objectAtIndex:position];
-            if ([[child description] hasPrefix:@"<"])
-            {
-                NSString *newiVar = parseClassNameFromXMLElement([child name]);
-                NSXMLElement *newChild = [rootElement elementForName:newiVar];
-                if (newChild)
-                {
-                    [instance deSerialize:newChild runtimeGenerator:self path:propertyPathNew];
-                }
-            }
+			NSString* name=[[ivars allKeys] objectAtIndex:position];
+            NSXMLElement *child = [ivars objectForKey:name];
+			[instance deSerialize:child 
+				 runtimeGenerator:self
+							 path:propertyPathNew 
+				   childClassName:name];
         }
     }
     
+	[ivars release];
+	
     if (parent)
     {
-        NSString * iVarKey = parseClassNameFromXMLElement([rootElement name]);
-        //        selectorHelper *helper = [[selectorHelper alloc] init];
-        //        SEL selector = [helper selectorFromTag:iVarKey];
-        //        if ([parent respondsToSelector:selector])
-        {
-            [self setiVarValue:instance foriVar:iVarKey inRegisteredClassInstance:parent path:propertyPath];
-        }
-        //        [helper release];
+		// Set the parent value 
+		// topLevelRoot.NextLevel=NextLevel; // chilClassName and instance class name would be the same
+		[self setiVarValue:instance foriVar:childClassName inRegisteredClassInstance:parent path:propertyPath];
         
         // check to see if this was the bottommost element that was being parsed
         // If so, set the innervalue
@@ -354,7 +441,7 @@ void MakeObjectPostDeallocNotification(id obj)
             [self setiVarValue:innerValue foriVar:INNER_VALUE_IVAR_KEY inRegisteredClassInstance:instance path:propertyPathNew];
             
             // Test if set correctly
-            DDLogInfo(@"innerValue for instance:%@ is:%@",NSStringFromClass([instance class]), [self fetchValueObjectForiVar:INNER_VALUE_IVAR_KEY inContainerInstance:instance]);
+            DDLogVerbose(@"innerValue for instance:%@ is:%@",NSStringFromClass([instance class]), [self fetchValueObjectForiVar:INNER_VALUE_IVAR_KEY inContainerInstance:instance]);
         }
     }
     
@@ -377,10 +464,6 @@ void MakeObjectPostDeallocNotification(id obj)
     }
     //    });
     
-    // Always add the innerValue iVar to all classes
-    // <accountId>inner value will be here</accountId>
-    [self addiVar:INNER_VALUE_IVAR_KEY toUnregisteredClass:unreg];
-    
     return unreg; 
 }
 
@@ -389,11 +472,14 @@ void MakeObjectPostDeallocNotification(id obj)
     [unreg addIvar: [RTIvar ivarWithName:key encode: @encode(id)]];
 }
 
--(RTUnregisteredClass *) createRootClass:(NSXMLElement *)rootElement
+-(RTUnregisteredClass *) createRootClass:(NSXMLElement *)rootElement Named:(NSString*)className
 {
-    NSString *newString = parseClassNameFromXMLElement([rootElement compactXMLString]);
-    DDLogInfo(@"Root class name being created:%@", newString);
-    RTUnregisteredClass * newClass = [self createClass:newString WithAttributeDictionary:[rootElement attributesAsDictionary]];
+	if ([className length]<=0)
+	{
+		className = parseClassNameFromXMLElement([rootElement compactXMLString]);
+	}
+    DDLogVerbose(@"Root class name being created:%@", className);
+    RTUnregisteredClass * newClass = [self createClass:className WithAttributeDictionary:[rootElement attributesAsDictionary]];
     
     [multicastDelegate generator:self didCreateUnregisteredClass:newClass];
     
@@ -410,7 +496,7 @@ void MakeObjectPostDeallocNotification(id obj)
     Override(c, @selector(dealloc), Dealloc);
     Override(c, @selector(generateReceiptResponse), GenerateReceiptResponse);
     Override(c, @selector(serialize), Serialize);
-    Override(c, @selector(deSerialize:runtimeGenerator:path:), DeSerialize);
+    Override(c, @selector(deSerialize:runtimeGenerator:path:childClassName:), DeSerialize);
     
     // grab NSObject's description signature so we can borrow it
     Method description = class_getInstanceMethod([NSObject class],
@@ -447,6 +533,9 @@ void MakeObjectPostDeallocNotification(id obj)
 inRegisteredClassInstance:(id)instanceOfNewClass
                 path:(NSString*)propertyPath
 {
+	if(!instanceOfNewClass) return;
+	if(!key) return;
+	if(!value) return;
     //Accessing this newly-added variable is not as easy as it normally would be. You can't just write foo in your code, because the compiler has no idea that this thing even exists.
     //The runtime provides two functions for accessing instance variables: object_setInstanceVariable and object_getInstanceVariable. They take an object and a name, and either a value to set, or a place to put the current value. Here's an example of getting and setting the instance variable constructed while creating the class:
     // Settings an ivar value
@@ -464,7 +553,7 @@ inRegisteredClassInstance:(id)instanceOfNewClass
     DDLogVerbose(@"%@ class instance contains ivar %@:%d",
                  NSStringFromClass([instanceOfNewClass class]),key,
                  containsiVar);
-    DDLogInfo(@"Setting value:%@ for iVar:%@ in class instance:%@",
+    DDLogVerbose(@"Setting value:%@ for iVar:%@ in class instance:%@",
                  NSStringFromClass([value class]),key,
                  NSStringFromClass([instanceOfNewClass class]));
 //    RTIvar *ivar = [[instanceOfNewClass class] rt_ivarForName:key];
@@ -476,41 +565,25 @@ inRegisteredClassInstance:(id)instanceOfNewClass
         [self.allObjectsGraph setObject:value forKey:propertyPath];
         [multicastDelegate generator:self didSetValue:value foriVar:key inClass:instanceOfNewClass path:propertyPath];
     }
+	else
+	{
+		DDLogWarn(@"iVar %@ in class %@ not found!", key,NSStringFromClass([instanceOfNewClass class]));
+	}
 }
 
--(id)fetchValueObjectForiVar:(NSString *)key 
-         inContainerInstance:(id)instanceOfClass
+-(NSString*)getNextAvailableIvar:(NSString*)ivarKey 
+					inDictionary:(NSDictionary*)iVarDictionary 
+						   Index:(int)index
 {
-    NSArray *ivars = [[instanceOfClass class] rt_ivars];
-    BOOL containsiVar = [[ivars valueForKey: @"name"] containsObject:key];
-    DDLogVerbose(@"%@ class instance contains ivar %@:%d",
-                 NSStringFromClass([instanceOfClass class]),key,
-                 containsiVar);
-    if (!containsiVar)
-        return nil;
-    // We found the iVar in the class declaration.
-    // Now let's try finding the value for iVar
-    id iVarValue = objc_getAssociatedObject(instanceOfClass,key);
-    if ([iVarValue isKindOfClass:[GenericXMLMessage class]])
-    {
-//        id typecasted;
-//        object_getInstanceVariable(instanceOfNewClass, key, (void*)&typecasted);
-        DDLogVerbose(@"Retrieved value:%@ for iVar:%@",NSStringFromClass([iVarValue class]),key);//NSStringFromClass([setvalue class])
-    }
-    else
-        DDLogVerbose(@"Retrieved value:%@ for iVar:%@",iVarValue,key);
-
-    if (!iVarValue)
-    {
-        Ivar ivar = class_getInstanceVariable([instanceOfClass class],"MessageHeader");
-        const char* typeEncoding = ivar_getTypeEncoding(ivar);
-        id returnedValue = object_getIvar(instanceOfClass, ivar);
-        iVarValue = returnedValue;
-    }
-    
-    [multicastDelegate generator:self didRetrieveValue:iVarValue foriVar:key inClass:instanceOfClass];
-    
-    return iVarValue;
+	BOOL containsiVar = [iVarDictionary objectForKey:ivarKey]!=nil;
+	if (!containsiVar) 
+		return ivarKey;
+	else
+	{
+		index++;
+		NSString* newiVar =[NSString stringWithFormat:@"%@%d",ivarKey,index];
+		return [self getNextAvailableIvar:newiVar inDictionary:iVarDictionary Index:index];
+	}
 }
 
 /**
@@ -524,20 +597,6 @@ inRegisteredClassInstance:(id)instanceOfNewClass
         _allObjectsGraph =[[NSMutableDictionary alloc] initWithCapacity:0];
 	}
 	return self;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark Configuration
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-- (void)addDelegate:(id)delegate
-{
-	[multicastDelegate addDelegate:delegate];
-}
-
-- (void)removeDelegate:(id)delegate
-{
-	[multicastDelegate removeDelegate:delegate];
 }
 
 /**

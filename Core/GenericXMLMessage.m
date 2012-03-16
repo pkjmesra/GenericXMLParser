@@ -166,7 +166,10 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 	return message;
 }
 
--(void) deSerialize:(NSXMLElement *)xmlData runtimeGenerator:(objCRuntimeClassGenerator*)rtGenerator path:(NSString*)propertyPath
+-(void) deSerialize:(NSXMLElement *)xmlData 
+   runtimeGenerator:(objCRuntimeClassGenerator*)rtGenerator 
+			   path:(NSString*)propertyPath 
+	 childClassName:(NSString*)name
 {
 	// DO nothing
 }

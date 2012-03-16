@@ -57,5 +57,6 @@
 
 -(void) deSerialize:(NSXMLElement *)xmlData 
    runtimeGenerator:(objCRuntimeClassGenerator*)rtGenerator 
-               path:(NSString*)propertyPath;
+               path:(NSString*)propertyPath 
+	 childClassName:(NSString*)name;
 @end

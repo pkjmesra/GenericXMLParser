@@ -196,7 +196,7 @@
 void MakeObjectPostDeallocNotification(id obj);
 -(void)addiVar:(NSString *)key toUnregisteredClass:(RTUnregisteredClass *)unreg;
 -(RTUnregisteredClass *) createClass:(NSString *)className WithAttributeDictionary:(NSDictionary *)attributesDict;
--(RTUnregisteredClass *) createRootClass:(NSXMLElement *)rootElement;
+-(RTUnregisteredClass *) createRootClass:(NSXMLElement *)rootElement Named:(NSString*)className;
 -(Class) registerUnregisteredClass:(RTUnregisteredClass *)unreg;
 -(void)setAttributediVars:(NSMutableDictionary *)attributesDict 
                  forClass:(id)instanceOfNewClass 
@@ -206,10 +206,14 @@ void MakeObjectPostDeallocNotification(id obj);
 inRegisteredClassInstance:(id)instanceOfNewClass
                 path:(NSString*)propertyPath;
 -(void)createRuntimeChildObjectPool:(NSArray *)parsedElements 
-                        forNewClass:(RTUnregisteredClass*) unreg
+						forNewClass:(RTUnregisteredClass*) unreg
                           forParent:(GenericXMLMessage *)parent
                                root:(NSXMLElement*)rootElement
-                               path:propertyPath;
+                               path:propertyPath 
+					 childClassName:(NSString*)name;
+-(NSString*)getNextAvailableIvar:(NSString*)ivarKey 
+					inDictionary:(NSDictionary*)iVarDictionary 
+						   Index:(int)index;
 
 @end
 
@@ -229,4 +233,6 @@ inRegisteredClassInstance:(id)instanceOfNewClass
 - (void)generator:(objCRuntimeClassGenerator *)sender didRetrieveValue:(id)iVarValue foriVar:(id)ivar inClass:(id)classInstance;
 
 - (void)generator:(objCRuntimeClassGenerator *)sender didSetValue:(id)iVarValue foriVar:(id)ivar inClass:(id)classInstance path:propertyPath;
+
+- (void)generator:(objCRuntimeClassGenerator *)sender didFinishWithRoot:(id)rootObject RootKeyInObjectGraph:(NSString*)key;
 @end

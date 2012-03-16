@@ -172,35 +172,8 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
     
     //id rootClass = 
     [self.runtimeGenerator createRuntimeObjectPool:self.parsedElements];
-////    Ivar ivar = class_getInstanceVariable([rootClass class], @"MessageHeader");
-////    const char* typeEncoding = ivar_getTypeEncoding(ivar);
-////    id returnedValue = object_getIvar(rootClass, ivar);
-////    NSLog(@"Class: %@", [returnedValue class]);
-////    
-////    NSLog(@"%@",[[rootClass class] rt_instanceSize]);
-////    void *ptr_to_result;
-////    object_getInstanceVariable(rootClass, "MessageHeader", &ptr_to_result);
-//    
-//    Ivar ivar = class_getInstanceVariable([rootClass class],"setting");
-//    const char* typeEncoding = ivar_getTypeEncoding(ivar);
-//    id msgHeader = [self.runtimeGenerator.rootInstance valueForKey:@"setting"];//object_getIvar(self.runtimeGenerator.rootInstance, ivar);
-//    id lockObject = *(id*)(((char*)rootClass)+ivar_getOffset(ivar));
-//    
-//    ivar = class_getInstanceVariable([msgHeader class],"transactionId");
-//    typeEncoding = ivar_getTypeEncoding(ivar);
-//    id tranId = object_getIvar(msgHeader, ivar);
-//    
-//    ivar = class_getInstanceVariable([msgHeader class],"innerValue");
-//    typeEncoding = ivar_getTypeEncoding(ivar);
-//    id tranValue = object_getIvar(tranId, ivar);
-//    
-////    id msgHeader = [self.runtimeGenerator fetchValueObjectForiVar:@"MessageHeader" inContainerInstance:self.runtimeGenerator.rootInstance];
-////    id tranId = [self.runtimeGenerator fetchValueObjectForiVar:@"transactionId" inContainerInstance:msgHeader];
-////    id tranValue = [self.runtimeGenerator fetchValueObjectForiVar:INNER_VALUE_IVAR_KEY inContainerInstance:tranId];
-//    NSLog(@"%@ %@ is %@",msgHeader,tranId,tranValue);
-//    [self.parsedElements removeAllObjects];
-    
-    NSLog(@"object graph:%@",[self.runtimeGenerator getObjectGraph]);
+
+    DDLogVerbose(@"object graph:%@",[self.runtimeGenerator getObjectGraph]);
 }
 
 - (void)Parser:(GenericXMLParser *)sender didFail:(NSError *)error
@@ -239,16 +212,12 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 
 - (void)generator:(objCRuntimeClassGenerator *)sender didSetValue:(id)iVarValue foriVar:(id)ivar inClass:(id)classInstance path:propertyPath
 {
-//    NSLog(@"propertyPath:%@",propertyPath);
-//    if ([NSStringFromClass([classInstance class]) isEqualToString:@"transactionId"])
-//    {
-//        if ([ivar isEqualToString:@"innerValue"])
-//        {
-//            id tranValue = [sender fetchValueObjectForiVar:@"innerValue" inContainerInstance:classInstance];
-//            NSLog(@"tranvalue:%@, from fetch:%@",iVarValue, tranValue);
-//            NSLog(@"Parent is:%@",[sender fetchValueObjectForiVar:@"parentInstance" inContainerInstance:classInstance]);
-//        }
-//    }
+
 }
 
+- (void)generator:(objCRuntimeClassGenerator *)sender didFinishWithRoot:(id)rootObject RootKeyInObjectGraph:(NSString*)key
+{
+	DDLogVerbose(@"Root Object:%@", rootObject);
+	[multicastDelegate StreamDidFinishParsing:self RootNodeKey:key inObjectGraph:[sender getObjectGraph] runtimeGenerator:sender];
+}
 @end

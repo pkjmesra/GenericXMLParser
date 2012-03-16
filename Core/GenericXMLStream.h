@@ -124,6 +124,14 @@
 - (void)StreamDidDisconnect:(GenericXMLStream *)sender;
 
 /**
+ * This method is called after the stream is finished parsing the data.
+ **/
+- (void)StreamDidFinishParsing:(GenericXMLStream *)sender 
+				   RootNodeKey:(NSString*)rootKey 
+				 inObjectGraph:(NSDictionary*)graph 
+			  runtimeGenerator:(objCRuntimeClassGenerator *)rtGenerator;
+
+/**
  * These methods are called as  modules are registered and unregistered with the stream.
  * This generally corresponds to  modules being initailzed and deallocated.
  * 

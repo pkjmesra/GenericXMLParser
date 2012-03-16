@@ -35,6 +35,7 @@
 #import "DDLog.h"
 #import "DDTTYLogger.h"
 #import "GenericXMLStream.h"
+#import "objCRuntimeClassGenerator.h"
 
 // Log levels: off, error, warn, info, verbose
 #if DEBUG
@@ -76,8 +77,10 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
      */
     GenericXMLStream *stream = [[GenericXMLStream alloc] init];
     NSString * resourcePath = [[NSBundle mainBundle] resourcePath];
-    NSData * data = [NSData dataWithContentsOfFile:[resourcePath stringByAppendingPathComponent:@"VMGGetCurrentSettingsRequest.xml"]];
-    [stream parseUTF8XMLData:data];
+    NSData * data = [NSData dataWithContentsOfFile:[resourcePath stringByAppendingPathComponent:@"SomeSample.xml"]];
+    
+	[stream addDelegate:self];
+	[stream parseUTF8XMLData:data];
 }
 
 
@@ -107,4 +110,18 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
     [super dealloc];
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark objCRuntimeClassGeneratorDelegate Configuration
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This method is called after the stream is finished parsing the data.
+ **/
+- (void)StreamDidFinishParsing:(GenericXMLStream *)sender 
+				   RootNodeKey:(NSString*)rootKey 
+				 inObjectGraph:(NSDictionary*)graph 
+			  runtimeGenerator:(objCRuntimeClassGenerator *)rtGenerator
+{
+	DDLogInfo(@"Object graph received:%@", graph);
+}
 @end
