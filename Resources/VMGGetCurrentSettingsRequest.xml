@@ -1,0 +1,26 @@
+<VMGGetCurrentSettingsRequest setting="somesettings">
+  <MessageHeader>
+    <clientId>UBV</clientId>
+    <accountId>UBV101</accountId>
+    <password>*********</password>
+    <dateTime></dateTime>
+    <transactionId>1014585902267</transactionId>
+    <sessionId>992640346821</sessionId>
+    <spcToken/>
+  </MessageHeader>
+  <MessageBody bodyId="somebodyid">
+    <customerDetails>
+      <lastName>lastName</lastName>
+      <firstName>firstName</firstName>
+      <mobileNbr>17736661001</mobileNbr>
+    </customerDetails>
+    <deviceDetails>
+      <deviceId>7736661001</deviceId>
+      <deviceIdType>ESN</deviceIdType>
+      <deviceMake>Motorola</deviceMake>
+      <deviceModel>Droid</deviceModel>
+      <devicePlatform>ANDROID</devicePlatform>
+      <deviceConnectivityMode>3G</deviceConnectivityMode>
+    </deviceDetails>
+  </MessageBody>
+</VMGGetCurrentSettingsRequest>
