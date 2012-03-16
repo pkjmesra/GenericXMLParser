@@ -92,7 +92,6 @@
 		840C06F515131AEB00AAC4F7 /* LibIDN.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LibIDN.m; sourceTree = "<group>"; };
 		840C06F615131AEB00AAC4F7 /* MulticastDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MulticastDelegate.h; sourceTree = "<group>"; };
 		840C06F715131AEB00AAC4F7 /* MulticastDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MulticastDelegate.m; sourceTree = "<group>"; };
-		840C06F815131AEB00AAC4F7 /* SynthesizeSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SynthesizeSingleton.h; sourceTree = "<group>"; };
 		840C070915131C4400AAC4F7 /* DDAbstractDatabaseLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDAbstractDatabaseLogger.h; sourceTree = "<group>"; };
 		840C070A15131C4400AAC4F7 /* DDAbstractDatabaseLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDAbstractDatabaseLogger.m; sourceTree = "<group>"; };
 		840C070B15131C4400AAC4F7 /* DDASLLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDASLLogger.h; sourceTree = "<group>"; };
@@ -264,7 +263,6 @@
 				840C06F515131AEB00AAC4F7 /* LibIDN.m */,
 				840C06F615131AEB00AAC4F7 /* MulticastDelegate.h */,
 				840C06F715131AEB00AAC4F7 /* MulticastDelegate.m */,
-				840C06F815131AEB00AAC4F7 /* SynthesizeSingleton.h */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
