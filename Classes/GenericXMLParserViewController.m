@@ -123,5 +123,8 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 			  runtimeGenerator:(objCRuntimeClassGenerator *)rtGenerator
 {
 	DDLogInfo(@"Object graph received:%@", graph);
+	DDLogInfo(@"shipto city is:%@", [rtGenerator fetchValueObjectForiVar:INNER_VALUE_IVAR_KEY inContainerInstance:[graph objectForKey:@"shiporder.shipto.city"]]);
 }
+
+
 @end
