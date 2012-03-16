@@ -56,6 +56,6 @@
 - (GenericXMLMessage *)generateReceiptResponse;
 
 -(void) deSerialize:(NSXMLElement *)xmlData 
-   runtimeGenerator:(objCRuntimeClassGenerator*)rtGenerator
-;
+   runtimeGenerator:(objCRuntimeClassGenerator*)rtGenerator 
+               path:(NSString*)propertyPath;
 @end

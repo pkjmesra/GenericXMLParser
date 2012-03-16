@@ -16,16 +16,31 @@
 #import "RTUnregisteredClass.h"
 #import "NSXMLElement+GenericXML.h"
 #import "DDLog.h"
+#import "MulticastDelegate.h"
 
 #define INNER_VALUE_IVAR_KEY @"innerValue"
 
 @class GenericXMLMessage;
+@protocol objCRuntimeClassGeneratorDelegate;
 
 @interface objCRuntimeClassGenerator : NSObject
 {
+    MulticastDelegate <objCRuntimeClassGeneratorDelegate> *multicastDelegate;
     GenericXMLMessage* _rootInstance;
+    NSMutableDictionary *_allObjectsGraph;
 }
 @property (nonatomic,retain) GenericXMLMessage* rootInstance;
+@property (nonatomic,retain) NSMutableDictionary *allObjectsGraph;
+/**
+ * Stream uses a multicast delegate.
+ * This allows one to add multiple delegates to a single Stream instance,
+ * which makes it easier to separate various components and extensions.
+ * 
+ * For example, if you were implementing two different custom extensions on top of ,
+ * you could put them in separate classes, and simply add each as a delegate.
+ **/
+- (void)addDelegate:(id)delegate;
+- (void)removeDelegate:(id)delegate;
 /**
  Creating a Class
  The act of creating a class is accomplished using the objc_allocateClassPair function in objc/runtime.h. You pass it a superclass, a name, and a size for per-class storage (generally best left at 0), and it returns a class to you.
@@ -144,6 +159,10 @@
  You can access the class using NSClassFromString as well, and in general it behaves just like any other class at this point.
  */
 -(GenericXMLMessage*)createRuntimeObjectPool:(NSMutableArray *)parsedElements;
+-(id)fetchValueObjectForiVar:(NSString *)key 
+         inContainerInstance:(id)instanceOfClass;
+-(NSDictionary *)getObjectGraph;
+-(id)getObjectForFullyQualifiedKey:(NSString*)fqKey;
 
 @end
 
@@ -155,14 +174,34 @@ void MakeObjectPostDeallocNotification(id obj);
 -(RTUnregisteredClass *) createRootClass:(NSXMLElement *)rootElement;
 -(Class) registerUnregisteredClass:(RTUnregisteredClass *)unreg;
 -(void)setAttributediVars:(NSMutableDictionary *)attributesDict 
-                 forClass:(id)instanceOfNewClass;
+                 forClass:(id)instanceOfNewClass 
+                     path:(NSString*)propertyPath;
 -(void) setiVarValue:(id)value 
              foriVar:(id)key 
-inRegisteredClassInstance:(id)instanceOfNewClass;
--(id)fetchValueObjectForiVar:(NSString *)key 
-         inContainerInstance:(id)instanceOfClass;
+inRegisteredClassInstance:(id)instanceOfNewClass
+                path:(NSString*)propertyPath;
 -(void)createRuntimeChildObjectPool:(NSArray *)parsedElements 
                         forNewClass:(RTUnregisteredClass*) unreg
                           forParent:(GenericXMLMessage *)parent
-                               root:(NSXMLElement*)rootElement;
+                               root:(NSXMLElement*)rootElement
+                               path:propertyPath;
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@protocol objCRuntimeClassGeneratorDelegate
+@optional
+
+- (void)generator:(objCRuntimeClassGenerator *)sender didCreateUnregisteredClass:(id)unregisteredClass;
+
+- (void)generator:(objCRuntimeClassGenerator *)sender didRegisterClass:(id)unregisteredClass;
+
+- (void)generator:(objCRuntimeClassGenerator *)sender didCreateClassInstance:(id)instance forClass:(Class)classObject;
+
+- (void)generator:(objCRuntimeClassGenerator *)sender didRetrieveValue:(id)iVarValue foriVar:(id)ivar inClass:(id)classInstance;
+
+- (void)generator:(objCRuntimeClassGenerator *)sender didSetValue:(id)iVarValue foriVar:(id)ivar inClass:(id)classInstance path:propertyPath;
 @end
