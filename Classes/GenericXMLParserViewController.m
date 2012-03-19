@@ -126,5 +126,10 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 	DDLogInfo(@"shipto city is:%@", [rtGenerator fetchValueObjectForiVar:INNER_VALUE_IVAR_KEY inContainerInstance:[graph objectForKey:@"shiporder.shipto.city"]]);
 }
 
+- (void)StreamWillBeginParsing:(GenericXMLStream *)sender 
+                      Elements:(NSDictionary*)nsXMLElements
+{
+    DDLogInfo(@"Dictionary of NSXMLElements:%@", nsXMLElements);
+}
 
 @end

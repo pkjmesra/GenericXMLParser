@@ -131,6 +131,8 @@
 				 inObjectGraph:(NSDictionary*)graph 
 			  runtimeGenerator:(objCRuntimeClassGenerator *)rtGenerator;
 
+- (void)StreamWillBeginParsing:(GenericXMLStream *)sender 
+				   Elements:(NSDictionary*)nsXMLElements;
 /**
  * These methods are called as  modules are registered and unregistered with the stream.
  * This generally corresponds to  modules being initailzed and deallocated.

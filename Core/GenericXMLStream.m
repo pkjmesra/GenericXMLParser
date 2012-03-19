@@ -167,6 +167,7 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 
 - (void)ParserDidEnd:(GenericXMLParser *)sender
 {
+    [multicastDelegate StreamWillBeginParsing:self Elements:(NSDictionary*)self.parsedElements];
     _runtimeGenerator = [[objCRuntimeClassGenerator alloc] init];
     [_runtimeGenerator addDelegate:self];
     
