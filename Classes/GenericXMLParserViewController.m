@@ -127,9 +127,9 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 }
 
 - (void)StreamWillBeginParsing:(GenericXMLStream *)sender 
-                      Elements:(NSDictionary*)nsXMLElements
+                      Elements:(NSArray*)nsXMLElements
 {
-    DDLogInfo(@"Dictionary of NSXMLElements:%@", nsXMLElements);
+    DDLogInfo(@"Array of NSXMLElements:%@", nsXMLElements);
 }
 
 @end
