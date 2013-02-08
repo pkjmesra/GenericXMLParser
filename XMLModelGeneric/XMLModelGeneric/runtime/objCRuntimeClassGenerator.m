@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Praveen Jha. All rights reserved.
 //
 /*
- Copyright (c) 2011, Research2Development Inc.
+ Copyright (c) 2011, Praveen K Jha.
  All rights reserved.
  
  Redistribution and use in source is NOT permitted. Redistribution and use in binary forms, without modification,
@@ -16,7 +16,7 @@
  Redistributions in binary form must reproduce the above copyright notice, this
  list of conditions and the following disclaimer in the documentation and/or other
  materials provided with the distribution.
- Neither the name of the Research2Development Inc. nor the names of its contributors may be
+ Neither the name of the Praveen K Jha. nor the names of its contributors may be
  used to endorse or promote products derived from this software without specific
  prior written permission.
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
